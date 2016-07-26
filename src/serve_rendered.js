@@ -1,5 +1,7 @@
 'use strict';
 
+var MAX_DIMENSION = 16384;
+
 var async = require('async'),
     advancedPool = require('advanced-pool'),
     fs = require('fs'),
@@ -23,7 +25,7 @@ var Canvas = require('canvas'),
 var utils = require('./utils');
 
 var FLOAT_PATTERN = '[+-]?(?:\\d+|\\d+\.?\\d+)';
-var SCALE_PATTERN = '@[23]x';
+var SCALE_PATTERN = '@[248]x';
 
 var getScale = function(scale) {
   return (scale || '@1x').slice(1, 2) | 0;
@@ -212,7 +214,8 @@ module.exports = function(options, repo, params, id) {
     // TODO: make pool sizes configurable
     map.renderers[1] = createPool(1, 4, 16);
     map.renderers[2] = createPool(2, 2, 8);
-    map.renderers[3] = createPool(3, 2, 4);
+    map.renderers[4] = createPool(4, 2, 4);
+    map.renderers[8] = createPool(8, 2, 4);
   });
 
   repo[id] = tileJSON;
@@ -227,7 +230,7 @@ module.exports = function(options, repo, params, id) {
       return res.status(400).send('Invalid center');
     }
     if (Math.min(width, height) <= 0 ||
-        Math.max(width, height) * scale > 2048) {
+        Math.max(width, height) * scale > MAX_DIMENSION) {
       return res.status(400).send('Invalid size');
     }
     if (format == 'png' || format == 'webp') {
